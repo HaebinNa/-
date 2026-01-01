@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>계좌번호 복사</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif; margin: 0; background: #0b1220; color: #e8eefc; }
+    .wrap { max-width: 520px; margin: 0 auto; padding: 28px 18px; }
+    .card { background: #121a2c; border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+    .badge { display: inline-block; font-size: 12px; padding: 6px 10px; border-radius: 999px; background: rgba(255,255,255,0.08); margin-bottom: 10px; }
+    h1 { font-size: 18px; margin: 0 0 12px; }
+    .row { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.08); }
+    .row:first-of-type { border-top: 0; }
+    .label { opacity: 0.75; }
+    .value { font-weight: 650; text-align: right; word-break: break-all; }
+    button { width: 100%; margin-top: 14px; padding: 12px 14px; border: 0; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; background: #2b6cff; color: white; }
+    button:active { transform: translateY(1px); }
+    .hint { margin-top: 10px; font-size: 12px; opacity: 0.75; line-height: 1.5; }
+    .toast { margin-top: 10px; font-size: 13px; padding: 10px 12px; border-radius: 12px; background: rgba(46, 204, 113, 0.14); border: 1px solid rgba(46, 204, 113, 0.25); display: none; }
+    .copybox { position: absolute; left: -9999px; top: -9999px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="badge">송금 안내</div>
+      <h1>카카오뱅크 계좌</h1>
+
+      <div class="row">
+        <div class="label">은행</div>
+        <div class="value" id="bankText">카카오뱅크</div>
+      </div>
+      <div class="row">
+        <div class="label">예금주</div>
+        <div class="value" id="nameText">김하영</div>
+      </div>
+      <div class="row">
+        <div class="label">계좌번호</div>
+        <div class="value" id="acctText">3333360077371</div>
+      </div>
+
+      <button id="copyBtn">계좌번호만 복사</button>
+      <div class="toast" id="toast">복사 완료! 이제 은행 앱에 붙여넣기만 하면 돼요.</div>
+
+      <p class="hint">
+        • 보안정책 때문에 “페이지 열리자마자 자동 복사”는 어려워요.<br/>
+        • 대신 이 버튼 한 번 누르면 클립보드에 계좌번호만 복사됩니다.
+      </p>
+    </div>
+
+    <textarea class="copybox" id="fallbackBox" aria-hidden="true"></textarea>
+  </div>
+
+<script>
+  const accountNumber = "3333360077371";
+
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.style.display = "block";
+    setTimeout(() => (t.style.display = "none"), 1800);
+  }
+
+  async function copyAccount() {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(accountNumber);
+        showToast("복사 완료! 계좌번호만 복사됐어요.");
+        return;
+      }
+    } catch (e) {}
+
+    // Fallback (일부 브라우저/환경용)
+    const box = document.getElementById("fallbackBox");
+    box.value = accountNumber;
+    box.select();
+    box.setSelectionRange(0, box.value.length);
+    const ok = document.execCommand("copy");
+    showToast(ok ? "복사 완료! 계좌번호만 복사됐어요." : "복사에 실패했어요. 계좌번호를 길게 눌러 복사해 주세요.");
+  }
+
+  document.getElementById("copyBtn").addEventListener("click", copyAccount);
+</script>
+</body>
+</html>
